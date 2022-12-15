@@ -1,4 +1,4 @@
-# Multi-Simlarity Based Hyperrelation Network for Few-Shot Segmentation
+# Few-Shot Semantic Segmentation for Industrial Defect Recognition
 
 This is the implementation of the paper ["Few-Shot Semantic Segmentation for Industrial Defect Recognition"]. 
 
