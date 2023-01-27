@@ -19,14 +19,14 @@ The main structure of the network is as follows:
 
 ## Preparing Industrial Datasets
 
-> Download from [[ScienceDB](https://www.scidb.cn/anonymous/6YWlBMzJ502)].
+> Download from [[ScienceDB](https://www.scidb.cn/en/detail?dataSetId=e1c585f563ff47c58bbacd832bac12ba)].
 
 
 
 
 ## Testing
 
-> Pretrained models are available on our [[ScienceDB](https://www.scidb.cn/anonymous/alVKek0z)].
+> Pretrained models are available on our [[ScienceDB](https://www.scidb.cn/en/detail?dataSetId=a2f221b69c564305a83882b543dfe294)].
 
 >Set the parameters in test.py and execute:
 > `python test.py`
