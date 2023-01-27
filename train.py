@@ -10,7 +10,7 @@ from common.evaluation import Evaluator
 from common import utils
 from data.dataset import FSSDataset
 from model.indus import IndustrialNetwork
-def train(epoch, model, dataloader, optimizer, training,method='msnet'):
+def train(epoch, model, dataloader, optimizer, training,method='industrial'):
     r""" Train IndustrialNet """
 
     # Force randomness during training / freeze randomness during testing
@@ -59,14 +59,14 @@ if __name__ == '__main__':
     parser.add_argument('--save_path', type=str, default='./resume')
     parser.add_argument('--benchmark', type=str, default='industrial', choices=['pascal', 'coco', 'industrial'])
     parser.add_argument('--logpath', type=str, default='')
-    parser.add_argument('--method', type=str, default='msnet', choices=['industrial', 'fss', 'msnet'])
-    parser.add_argument('--bsz', type=int, default=9)
+    parser.add_argument('--method', type=str, default='industrial', choices=['industrial', 'fss', 'msnet'])
+    parser.add_argument('--bsz', type=int, default=11)
     parser.add_argument('--shot', type=int, default=7)
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--weight_decay', type=float, default=0.00005)
     parser.add_argument('--lr', type=float, default=0.025)
     parser.add_argument('--niter', type=int, default=900)
-    parser.add_argument('--nworker', type=int, default=9)
+    parser.add_argument('--nworker', type=int, default=11)
     parser.add_argument('--fold', type=int, default=3, choices=[0, 1, 2, 3])
     parser.add_argument('--backbone', type=str, default='resnet50', choices=['vgg16', 'resnet50', 'resnet101','net'])
     args = parser.parse_args()
