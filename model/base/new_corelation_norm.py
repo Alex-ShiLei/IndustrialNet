@@ -10,12 +10,10 @@ class Correlation:
         sups=[]
         for idx, (query_feat, support_feat) in enumerate(zip(query_feats, support_feats)):
             queryShape = query_feat.shape#b,c,h,w
-            print('....',queryShape)
             corrI=[]
             diffI=[]
             realSupI=[]
             for j in range(len(support_feat)):#b
-                #print(idx,j,query_feat.shape)
                 queryIJ=query_feat[j].flatten(start_dim=1)#c,hw
                 queryIJ_Val=queryIJ.norm(dim=0, p=2, keepdim=True) + eps
                 queryIJNorm=queryIJ/queryIJ_Val
@@ -23,29 +21,21 @@ class Correlation:
                 supIJ_Val=supIJ.norm(dim=0, p=2, keepdim=True) + eps
                 supIJNorm=supIJ/supIJ_Val
                 corr=(queryIJNorm.T).matmul(supIJNorm)#hw,hw
-
-                #queryIJ_L2Norm=queryIJ/(queryIJ_Val.amax(dim=1,keepdim=True)-queryIJ_Val.amin(dim=1,keepdim=True))
-                #supIJ_L2Norm = supIJ / (supIJ_Val.amax(dim=1, keepdim=True)-supIJ_Val.amin(dim=1, keepdim=True))
                 maxIndex=corr.argmax(dim=1)#hw
                 new_query=supIJNorm[:,maxIndex]#c,n
-                #new_query_L2Norm=supIJ_L2Norm[:,maxIndex]#c,n
                 diff=((new_query-queryIJNorm)**2).mean(dim=0,keepdim=True)#1,hw
                 maxval=diff.amax(dim=1,keepdim=True)+torch.zeros_like(diff)
                 minVal=diff.amin(dim=1,keepdim=True)+torch.zeros_like(diff)
-                #meanVal = diff.mean(dim=1, keepdim=True) + torch.zeros_like(diff)
                 diffVal=diff.detach()
                 diffVal=diffVal.squeeze(0)
                 diff=(diff-minVal)/(maxval-minVal)
-                #saveColorMap(diff, name + '_diff' + str(idx) + '_' + str(j), [queryShape[-2], queryShape[-1]])
                 diff=diff.unsqueeze(0)#1,2,hw
                 diffI.append(diff)
                 corr=corr.mean(dim=1,keepdim=True)
-                #saveColorMap(corr, name + '_corr' + str(idx) + '_' + str(j), [queryShape[-2], queryShape[-1]])
                 corr=(corr.permute(1,0)).unsqueeze(0)#1,1,hw
-                corrI.append(corr)#(torch.cat([corr,diff],dim=1))#b,1,hw
+                corrI.append(corr)
                 supIJ = queryIJ[:, diffVal > diffVal.mean()]
                 resupJ=supIJ.mean(dim=1,keepdim=True)
-                #resupJsum=resupJ.sum()
                 resupJ=resupJ.unsqueeze(0).expand(-1,-1,queryIJ.shape[-1])#1,c,hw
 
                 queryIJ=queryIJ.unsqueeze(0)#1,c,hw
@@ -72,6 +62,4 @@ class Correlation:
         sup_l4=sups[-stack_ids[0]:]#n,b,2c,h,w
         sup_l3=sups[-stack_ids[1]:-stack_ids[0]]
         sup_l2=sups[-stack_ids[2]:-stack_ids[1]]
-        #print('----',corr_l4.shape,diff_l4.shape,sup_l4.shape)#n,b,1,h,wtorch.Size([13, 3, 15, 15])
-        #print(len(sup_l4), len(sup_l3), len(sup_l2))
         return [diff_l4, diff_l3, diff_l2],[corr_l4, corr_l3, corr_l2],[sup_l4,sup_l3,sup_l2]
