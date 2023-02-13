@@ -36,59 +36,24 @@ class ShotConv(nn.Module):
 class Flatten(nn.Module):
     def forward(self, x):
         return x.flatten(start_dim=1)
-class LayerConv1(nn.Module):
-    def __init__(self, inCh, outCh):
-        super(LayerConv1, self).__init__()
-        self.coninit=nn.Sequential(nn.Conv2d(inCh, inCh, kernel_size=3,padding=1,groups=inCh), nn.BatchNorm2d(inCh),nn.ReLU())
-        self.conv0 =nn.Sequential(nn.Conv2d(inCh, 64, kernel_size=1), nn.BatchNorm2d(64),nn.ReLU())
-        self.conv1 = nn.Sequential(nn.Conv2d(inCh, 64, kernel_size=3, dilation=2, padding=2),nn.BatchNorm2d(64), nn.ReLU())
-        self.conv2 = nn.Sequential(nn.Conv2d(inCh, 64, kernel_size=3, dilation=4, padding=4),nn.BatchNorm2d(64),nn.ReLU())
-        self.conv3 = nn.Sequential(nn.Conv2d(64*3, outCh, kernel_size=3,padding=1))#, nn.BatchNorm2d(outCh),nn.ReLU())
-        self.drop=nn.Dropout2d(0.2)
-    def forward(self,x):
-        x=self.coninit(x)
-        x0=self.conv0(x)
-        x1=self.conv1(x)
-        x2=self.conv2(x)
-        x= self.conv3(torch.cat([x0,x1,x2],dim=1))
-        xmax=x.amax(dim=(2,3),keepdim=True)
-        xmin = x.amin(dim=(2,3), keepdim=True)
-        return (x-xmin)/(xmax-xmin)#self.drop(x)
 class LayerConv(nn.Module):
     def __init__(self, inCh, outCh):
         super(LayerConv, self).__init__()
-        self.coninit=nn.Sequential(nn.Conv2d(inCh, inCh, kernel_size=3,padding=1,groups=inCh), nn.BatchNorm2d(inCh),nn.ReLU())
-        self.conv0 =nn.Sequential(nn.Conv2d(inCh, 64, kernel_size=1), nn.BatchNorm2d(64),nn.ReLU())
-        self.conv0_1 = nn.Sequential(nn.Conv2d(64, 64, kernel_size=1), nn.BatchNorm2d(64),
+        self.conv0 =nn.Sequential(nn.Conv2d(inCh, outCh, kernel_size=1), nn.BatchNorm2d(outCh),nn.ReLU())
+        self.conv0_1 = nn.Sequential(nn.Conv2d(outCh*2, outCh, kernel_size=1), nn.BatchNorm2d(outCh),
                                    nn.ReLU())
-        self.conv1 = nn.Sequential(nn.Conv2d(inCh, 64, kernel_size=3, dilation=2, padding=2),nn.BatchNorm2d(64), nn.ReLU())
-        self.conv1_1 = nn.Sequential(nn.Conv2d(64, 64, kernel_size=1), nn.BatchNorm2d(64),
+        self.conv1 = nn.Sequential(nn.Conv2d(inCh, outCh, kernel_size=3,padding=1),nn.BatchNorm2d(outCh), nn.ReLU())
+        self.conv1_1 = nn.Sequential(nn.Conv2d(outCh*2, outCh, kernel_size=1), nn.BatchNorm2d(outCh),
                                    nn.ReLU())
-        self.conv2 = nn.Sequential(nn.Conv2d(inCh, 64, kernel_size=3, dilation=4, padding=4),nn.BatchNorm2d(64),nn.ReLU())
-        self.conv2_1 = nn.Sequential(nn.Conv2d(64, 64, kernel_size=1), nn.BatchNorm2d(64),
-                                   nn.ReLU())
-        self.conv3 = nn.Sequential(nn.Conv2d(64*3, outCh, kernel_size=3,padding=1), nn.BatchNorm2d(outCh),nn.ReLU(),
-                                   nn.Conv2d(outCh, outCh, kernel_size=1), nn.BatchNorm2d(outCh),nn.ReLU())
-        self.drop=nn.Dropout2d(0.2)
+        self.conv2 = nn.Sequential(nn.Conv2d(outCh, outCh, kernel_size=3,padding=1), nn.BatchNorm2d(outCh),nn.ReLU())
     def forward(self,x):
-        x=self.coninit(x)
         x0=self.conv0(x)
-        x0mean=x0.mean(dim=(2,3),keepdim=True)
-        x0=x0-x0mean
-        x0=self.conv0_1(x0)
-
+        x0mean=x0.mean(dim=(2,3),keepdim=True)+torch.zeros_like(x0)
+        x0=self.conv0_1(torch.cat([x0,x0mean],dim=1))
         x1=self.conv1(x)
-        x1mean=x1.mean(dim=(2,3),keepdim=True)
-        x1=x1-x1mean
-        x1=self.conv1_1(x1)
-
-        x2=self.conv2(x)
-
-        x2mean=x2.mean(dim=(2,3),keepdim=True)
-        x2=x2-x2mean
-        x2=self.conv2_1(x2)
-        #print(x0.shape,x1.shape,x2.shape)
-        x= self.conv3(torch.cat([x0,x1,x2],dim=1))
+        x1mean=x1.mean(dim=(2,3),keepdim=True)+torch.zeros_like(x1)
+        x1=self.conv1_1(torch.cat([x1,x1mean],dim=1))
+        x= self.conv2(x0+x1)
         return x
 class ChannelGate(nn.Module):
     def __init__(self, gate_channels, reduction_ratio=4, pool_types=['avg', 'max']):
@@ -129,8 +94,7 @@ class MergeConv1(nn.Module):
         self.conv1 = nn.Conv2d(inplan1, outplan, kernel_size=1)
         self.conv2 = nn.Conv2d(inplan2, outplan, kernel_size=1)
         self.conv3 = nn.Conv2d(inplan3, outplan, kernel_size=1)
-        #self.conv=nn.Sequential(nn.Conv2d(outplan*3,outplan*2,kernel_size=3,padding=1),
-        #                        nn.BatchNorm2d(outplan*2),nn.ReLU(),nn.Conv2d(outplan*2,outplan,kernel_size=1))
+
         self.chATT = ChannelGate(outplan, 4)
         self.merge = BasicConv(outplan, outplan)
         self.merge2 = BasicConv(outplan, outplan)
@@ -185,13 +149,9 @@ class qsSim(nn.Module):
         super(qsSim, self).__init__()
         self.conv2 = nn.Conv2d(inplan, 1, kernel_size=1,bias=False)
     def forward(self, x):
-        #print('----',x.shape)
         x = self.conv2(x)
-        #val=x.detach().squeeze()
-        #h,w=val.shape
-        #val=(val-val.min())/(val.max()-val.min())*255
-        #cv2.imwrite(str(h)+str(w)+'.bmp',val.cpu().numpy())
-        return torch.sigmoid(x)
+        val=torch.sigmoid(x)
+        return val
 class sqOut(nn.Module):
     def __init__(self, inCh, outCh):
         super(sqOut, self).__init__()
@@ -218,27 +178,27 @@ class merge(nn.Module):
         for num in nfeatures:
             self.query_sup_corrConv.append(qsSim(num))
         for num in nsimlairy:
-            self.qs_layer_corrConv.append(LayerConv(num, 128))
-            self.sim_layer_corrConv.append(LayerConv(num, 256))
-            self.diff_layer_corrConv.append(LayerConv(num, 256))
+            self.qs_layer_corrConv.append(BasicConv1x1(num, 256))
+            self.sim_layer_corrConv.append(BasicConv1x1(num, 256))
+            self.diff_layer_corrConv.append(BasicConv1x1(num, 256))
         self.query_sup_corrConv = nn.ModuleList(self.query_sup_corrConv)
         self.qs_layer_corrConv = nn.ModuleList(self.qs_layer_corrConv)
         self.sim_layer_corrConv = nn.ModuleList(self.sim_layer_corrConv)
         self.diff_layer_corrConv = nn.ModuleList(self.diff_layer_corrConv)
-        self.sqShotConv4 = ShotConv(128, 128)
-        self.sqShotConv3 = ShotConv(128, 128)
-        self.sqShotConv2 = ShotConv(128, 128)
+        self.sqShotConv4 = ShotConv(256, 256)
+        self.sqShotConv3 = ShotConv(256, 256)
+        self.sqShotConv2 = ShotConv(256, 256)
 
         self.diffShotConv4 = ShotConv(256, 256)
         self.diffShotConv3 = ShotConv(256, 256)
         self.diffShotConv2 = ShotConv(256, 256)
 
-        self.simShotConv4 = BasicConv(256, 256)
-        self.simShotConv3 = BasicConv(256, 256)
-        self.simShotConv2 = BasicConv(256, 256)
-        self.conv4 = MergeConv1(256,256, 128, 256)
-        self.conv3 = MergeConv1(256, 256, 128, 256)
-        self.conv2 = MergeConv1(256, 256, 128, 256)
+        self.simShotConv4 = ShotConv(256, 256)
+        self.simShotConv3 = ShotConv(256, 256)
+        self.simShotConv2 = ShotConv(256, 256)
+        self.conv4 = MergeConv1(256,256, 256, 256)
+        self.conv3 = MergeConv1(256, 256, 256, 256)
+        self.conv2 = MergeConv1(256, 256, 256, 256)
         self.conv43 = MergeConv(256, 256, 512)
         self.conv432 = MergeDown(512, 256, 512)
         self.decoder1 = sqOut(512, 256)
