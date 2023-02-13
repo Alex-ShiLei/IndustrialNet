@@ -102,7 +102,7 @@ class Logger:
         cls.tbd_writer = SummaryWriter(os.path.join(cls.logpath, 'tbd/runs'))
 
         # Log arguments
-        logging.info('\n:=========== Few-shot Seg. with HSNet ===========')
+        logging.info('\n:=========== Few-shot Seg. with IndustrialNet ===========')
         for arg_key in args.__dict__:
             logging.info('| %20s: %-24s' % (arg_key, str(args.__dict__[arg_key])))
         logging.info(':================================================\n')
