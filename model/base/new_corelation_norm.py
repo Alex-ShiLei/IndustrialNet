@@ -26,15 +26,14 @@ class Correlation:
                 diff=((new_query-queryIJNorm)**2).mean(dim=0,keepdim=True)#1,hw
                 maxval=diff.amax(dim=1,keepdim=True)+torch.zeros_like(diff)
                 minVal=diff.amin(dim=1,keepdim=True)+torch.zeros_like(diff)
-                diffVal=diff.detach()
-                diffVal=diffVal.squeeze(0)
+
                 diff=(diff-minVal)/(maxval-minVal)
                 diff=diff.unsqueeze(0)#1,2,hw
                 diffI.append(diff)
                 corr=corr.mean(dim=1,keepdim=True)
                 corr=(corr.permute(1,0)).unsqueeze(0)#1,1,hw
                 corrI.append(corr)
-                supIJ = queryIJ[:, diffVal > diffVal.mean()]
+
                 resupJ=supIJ.mean(dim=1,keepdim=True)
                 resupJ=resupJ.unsqueeze(0).expand(-1,-1,queryIJ.shape[-1])#1,c,hw
 
