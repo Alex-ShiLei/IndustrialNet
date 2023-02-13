@@ -17,9 +17,17 @@ def saveImag(tenSorVal,name):
     tenSorVal=np.uint8(tenSorVal.numpy())
     tenSorVal=cv2.cvtColor(tenSorVal,cv2.COLOR_BGR2RGB)
     cv2.imwrite('./map/'+str(name)+'.bmp',tenSorVal)
+
+def saveMask(tenSorVal, name):
+    tenSorVal = tenSorVal.squeeze()
+    tenSorVal = tenSorVal*255
+    tenSorVal = tenSorVal.cpu()
+    tenSorVal = np.uint8(tenSorVal.numpy())
+    cv2.imwrite('./map/' + str(name) + '.bmp', tenSorVal)
 def saveColorMap(tenSorVal,name,size=[]):
     tenSorVal=tenSorVal.squeeze()
-    tenSorVal=tenSorVal.reshape(size)
+    if len(size)!=0:
+        tenSorVal=tenSorVal.reshape(size)
     map=tenSorVal.cpu().numpy()
     minVal=map.min()
     maxVal=map.max()
