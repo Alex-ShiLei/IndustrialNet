@@ -69,15 +69,15 @@ class Visualizer:
         pred_masked_pil = Image.fromarray(cls.apply_mask(qry_img.astype(np.uint8), pred_mask.astype(np.uint8), pred_color))
         qry_masked_pil = Image.fromarray(cls.apply_mask(qry_img.astype(np.uint8), qry_mask.astype(np.uint8), qry_color))
 
-        merged_pil = cls.merge_image_pair(spt_masked_pils + [qry_masked_pil,pred_masked_pil])
+        merged_pil = cls.merge_image_pair(spt_masked_pils + [qry_pil,qry_masked_pil,pred_masked_pil])
 
         iou = iou.item() if iou else 0.0
-        merged_pil.save(cls.vis_path + '%d_%d_class-%d_iou-%.2f' % (batch_idx, sample_idx, cls_id, iou) + '.jpg')
+        merged_pil.save(cls.vis_path +'%d_%d_class-%d_iou-%.2f' % (batch_idx, sample_idx, cls_id, iou) + '.jpg')
 
     @classmethod
     def merge_image_pair(cls, pil_imgs):
         r""" Horizontally aligns a pair of pytorch tensor images (3, H, W) and returns PIL object """
-        num=len(pil_imgs)-2
+        num=len(pil_imgs)-3
         canvas_width = sum([pil.size[0] for pil in pil_imgs])+20
         canvas_height = max([pil.size[1] for pil in pil_imgs])
         canvas = Image.new('RGB', (canvas_width, canvas_height),(255,255,255))
