@@ -1,11 +1,11 @@
-# Few-Shot Semantic Segmentation for Industrial Defect Recognition
+# Multi-Simlarity Based Hyperrelation Network for Few-Shot Segmentation
 
 This is the implementation of the paper ["Few-Shot Semantic Segmentation for Industrial Defect Recognition"]. 
 
 Implemented on Python 3.8 and Pytorch 1.9.
 The main structure of the network is as follows:
 <p align="middle">
-    <img src="./info/main_structure.jpg">
+    <img src="./info/fig1.jpg">
 </p>
 
 
@@ -19,14 +19,14 @@ The main structure of the network is as follows:
 
 ## Preparing Industrial Datasets
 
-> Download from [[ScienceDB](https://www.scidb.cn/en/detail?dataSetId=e1c585f563ff47c58bbacd832bac12ba)].
+> Download from [[ScienceDB](https://www.scidb.cn/anonymous/alVKek0z)].
 
 
 
 
 ## Testing
 
-> Pretrained models are available on our [[ScienceDB](https://www.scidb.cn/en/detail?dataSetId=a2f221b69c564305a83882b543dfe294)].
+> Pretrained models are available on our [[ScienceDB](https://www.scidb.cn/anonymous/YWlBMzJ5)].
 
 >Set the parameters in test.py and execute:
 > `python test.py`
