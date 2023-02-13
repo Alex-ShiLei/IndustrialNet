@@ -7,10 +7,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import resnet
 from torchvision.models import vgg
-from .base.merge import merge
+from .base.merge_l2 import merge
 from .base.feature import extract_feat_vgg, extract_feat_res
-from .base.new_corelation_norm import Correlation
-
+from .base.new_corelation import Correlation
+import common.utils as util
 class IndustrialNetwork(nn.Module):
     def __init__(self, backbone, use_original_imgsize,shot=1):
         super(IndustrialNetwork, self).__init__()
@@ -57,7 +57,7 @@ class IndustrialNetwork(nn.Module):
                 corrs.append(corr)#s,l,n,b,1,h,w
                 sup_feats.append(sups)#s,l,n,b,2*c,h,w
 
-        logit_mask,loss = self.merge(sup_feats,corrs,diffs,gt)
+        logit_mask,loss = self.merge(sup_feats,corrs,diffs,gt,name=name)
         if not self.use_original_imgsize:
             logit_mask = F.interpolate(logit_mask, support_img.size()[-2:], mode='bilinear', align_corners=True)
 
@@ -75,8 +75,6 @@ class IndustrialNetwork(nn.Module):
 
     def predict_mask_nshot(self, batch, nshot):
         imgName=batch['query_name'][0].split('.')[0]
-        #saveImag(batch['query_img'],imgName+'_query')
-        #saveImag(batch['support_imgs'],imgName+'_sup')
         logit_mask,loss = self(batch['query_img'], batch['support_imgs'],batch['query_mask'],imgName)
         if self.use_original_imgsize:
             org_qry_imsize = tuple([batch['org_query_imsize'][1].item(), batch['org_query_imsize'][0].item()])
