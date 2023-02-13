@@ -8,7 +8,7 @@ from common.evaluation import Evaluator
 from common import utils
 from data.dataset import FSSDataset
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 def test(model, dataloader, nshot):
     r""" Test IndustrialNetwork """
@@ -28,7 +28,6 @@ def test(model, dataloader, nshot):
         area_inter, area_union = Evaluator.classify_prediction(pred_mask.clone(), batch)
         average_meter.update(area_inter, area_union, batch['class_id'], loss=None)
         average_meter.write_process(idx, len(dataloader), epoch=-1, write_batch_idx=1)
-
         # Visualize predictions
         if Visualizer.visualize:
             Visualizer.visualize_prediction_batch(batch['support_imgs'],
@@ -58,8 +57,8 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=0.025)
     parser.add_argument('--niter', type=int, default=300)
     parser.add_argument('--nworker', type=int, default=1)
-    parser.add_argument('--load', type=str, default='./resume/best5-3.pth')
-    parser.add_argument('--fold', type=int, default=3, choices=[0, 1, 2, 3])
+    parser.add_argument('--load', type=str, default='./l2-5-1.pth')
+    parser.add_argument('--fold', type=int, default=1, choices=[0, 1, 2, 3])
     parser.add_argument('--backbone', type=str, default='resnet50', choices=['vgg16', 'resnet50', 'resnet101','net'])
     args = parser.parse_args()
     Logger.initialize(args, training=True)
