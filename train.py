@@ -53,7 +53,7 @@ def train(epoch, model, dataloader, optimizer, training,method='industrial'):
 if __name__ == '__main__':
 
     # Arguments parsing
-    parser = argparse.ArgumentParser(description='MSHNet Pytorch Implementat1ion')
+    parser = argparse.ArgumentParser(description='IndustrialHNet Pytorch Implementat1ion')
     parser.add_argument('--datapath', type=str, default='..')
     #parser.add_argument('--datapath', type=str, default='/home/alex/pytorch/data')
     parser.add_argument('--save_path', type=str, default='./resume')
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     parser.add_argument('--logpath', type=str, default='')
     parser.add_argument('--method', type=str, default='industrial', choices=['industrial', 'fss', 'msnet'])
     parser.add_argument('--bsz', type=int, default=11)
-    parser.add_argument('--shot', type=int, default=7)
+    parser.add_argument('--shot', type=int, default=3)
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--weight_decay', type=float, default=0.00005)
     parser.add_argument('--lr', type=float, default=0.025)
